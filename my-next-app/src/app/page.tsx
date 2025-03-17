@@ -51,8 +51,6 @@ const TodoApp = () => {
     }
   }, [todos, counter, form, isClient]);
 
-  // handle Input changes made in the form
-
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -71,8 +69,6 @@ const TodoApp = () => {
     setForm((prev) => ({ ...prev, accessibility: value }));
   }, []);
 
-  // Adds a new item to the form and increments the counter
-  
   const addTodo = useCallback(() => {
     if (!form.activity.trim()) return;
     setTodos((prev) => [
