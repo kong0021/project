@@ -2,21 +2,14 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Slider } from "@radix-ui/react-slider";
-
-type TodoItem = {
-  id: string;
-  activity: string;
-  price: number;
-  type: string;
-  bookingRequired: boolean;
-  accessibility: number;
-};
+import { FormItem } from "./types/type";
 
 const TodoApp = () => {
-  const [todos, setTodos] = useState<TodoItem[]>([]);
-  const [counter, setCounter] = useState(1); // Sequential ID counter
-  const [accessibility, setAccessibility] = useState(0);
-  const [form, setForm] = useState<Omit<TodoItem, "id">>({
+  const [todos, setTodos] = useState<FormItem[]>([]);
+  const [counter, setCounter] = useState(1);
+  const [isClient, setIsClient] = useState(false); // Fix Next.js hydration issues
+
+  const [form, setForm] = useState<Omit<FormItem, "id">>({
     activity: "",
     price: 0,
     type: "education",
@@ -24,8 +17,41 @@ const TodoApp = () => {
     accessibility: 0.5,
   });
 
+  // Ensure Next.js hydration works correctly
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
-  // Handle form input changes
+  // Load from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedTodos = localStorage.getItem("todos");
+      const savedCounter = localStorage.getItem("counter");
+      const savedForm = localStorage.getItem("form");
+
+      if (savedTodos) setTodos(JSON.parse(savedTodos));
+      if (savedCounter) setCounter(Number(savedCounter));
+      if (savedForm) setForm(JSON.parse(savedForm));
+
+      console.log("Loaded from localStorage:", {
+        savedTodos,
+        savedCounter,
+        savedForm,
+      });
+    }
+  }, []);
+
+  // Save to localStorage onChange of todos, counter, or form
+  useEffect(() => {
+    if (isClient) {
+      console.log("Saving to localStorage", { todos, counter, form });
+
+      localStorage.setItem("todos", JSON.stringify(todos));
+      localStorage.setItem("counter", counter.toString());
+      localStorage.setItem("form", JSON.stringify(form));
+    }
+  }, [todos, counter, form, isClient]);
+
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -44,14 +70,13 @@ const TodoApp = () => {
     setForm((prev) => ({ ...prev, accessibility: value }));
   }, []);
 
-
   const addTodo = useCallback(() => {
     if (!form.activity.trim()) return;
     setTodos((prev) => [
       ...prev,
-      { ...form, id: String(counter), price: Number(form.price) }, // Sequential ID
+      { ...form, id: String(counter), price: Number(form.price) },
     ]);
-    setCounter((prev) => prev + 1); // Increment counter
+    setCounter((prev) => prev + 1);
     setForm({
       activity: "",
       price: 0,
@@ -65,8 +90,11 @@ const TodoApp = () => {
     setTodos((prev) => prev.filter((todo) => todo.id !== id));
   }, []);
 
-  // Memoized count
   const totalItems = useMemo(() => todos.length, [todos]);
+
+  if (!isClient) {
+    return <div>Loading...</div>; // Fixes hydration issues in Next.js
+  }
 
   return (
     <div className="max-w-md mx-auto p-6 border rounded-lg shadow-md">
@@ -131,14 +159,8 @@ const TodoApp = () => {
           <input
             type="range"
             id="accessibility"
-            name="accessibility"
             value={form.accessibility}
-            onChange={(e) =>
-              setForm((prev) => ({
-                ...prev,
-                accessibility: Number(e.target.value),
-              }))
-            }
+            onChange={(e) => handleSliderChange(Number(e.target.value))}
             min="0"
             max="1"
             step="0.1"

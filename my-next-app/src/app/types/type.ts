@@ -1,19 +1,9 @@
-export type ActivityType =
-  | "education"
-  | "recreational"
-  | "social"
-  | "diy"
-  | "charity"
-  | "cooking"
-  | "relaxation"
-  | "music"
-  | "busywork";
 
 export interface FormItem {
-  id: number;
+  id: string;
   activity: string;
   price: number;
-  type: ActivityType;
+  type: string;
   bookingRequired: boolean;
   accessibility: number;
 }
