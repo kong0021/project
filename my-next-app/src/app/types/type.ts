@@ -9,7 +9,7 @@ export type ActivityType =
   | "music"
   | "busywork";
 
-export interface TodoItem {
+export interface FormItem {
   id: number;
   activity: string;
   price: number;
