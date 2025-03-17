@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Slider } from "@radix-ui/react-slider";
 import { FormItem } from "./types/type";
 
 const TodoApp = () => {
@@ -178,15 +177,31 @@ const TodoApp = () => {
       {/* List */}
       <ul className="mt-4 space-y-2">
         {todos.map((todo) => (
-          <li key={todo.id} className="flex justify-between p-2 border rounded">
-            <span>
-              {todo.activity} (${todo.price})
-            </span>
+          <li key={todo.id} className="p-3 border rounded bg-gray-100">
+            <p>
+              <strong>Id:</strong> {todo.id}
+            </p>
+            <p>
+              <strong>Activity:</strong> {todo.activity}
+            </p>
+            <p>
+              <strong>Price:</strong> ${todo.price.toFixed(2)}
+            </p>
+            <p>
+              <strong>Type:</strong> {todo.type}
+            </p>
+            <p>
+              <strong>Booking:</strong>{" "}
+              {todo.bookingRequired ? "Required" : "Not Required"}
+            </p>
+            <p>
+              <strong>Accessibility:</strong> {todo.accessibility.toFixed(1)}
+            </p>
             <button
               onClick={() => removeTodo(todo.id)}
-              className="text-red-500"
+              className="text-red-500 mt-2"
             >
-              ✖
+              ✖ Remove
             </button>
           </li>
         ))}
